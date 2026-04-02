@@ -1,4 +1,4 @@
-# SQL Practice — 100 Exercises
+# SQL Practice — 100 Exercises https://crispy-spoon-5gw7pr7rq7q6f7647-5000.app.github.dev/
 
 An interactive SQL practice app built with Flask and SQLite. Write real SQL queries, get instant feedback, and level up from beginner to advanced.
 
@@ -53,10 +53,4 @@ sql-practice/
 | `orders`      | id, customer_id, order_date, total_amount, status       |
 | `order_items` | id, order_id, product_id, quantity, unit_price          |
 
-## Deployment
 
-This app is Replit-ready (includes `.replit` config). To deploy elsewhere, any platform that supports Python + Flask will work (Railway, Render, Fly.io, etc.).
-
-## License
-
-MIT
