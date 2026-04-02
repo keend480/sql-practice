@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Practice – 100 Exercises</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              900: '#0d0f18',
+              800: '#13151f',
+              700: '#1a1d2e',
+              600: '#21253a',
+              500: '#2a2f47',
+              400: '#3b4268',
+            },
+            brand: {
+              DEFAULT: '#6366f1',
+              light: '#818cf8',
+              dark: '#4f46e5',
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0d0f18; color: #e2e8f0; }
+
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #3b4268; border-radius: 9999px; }
+
+    .sidebar-item { border-left: 2px solid transparent; transition: all 0.15s ease; }
+    .sidebar-item:hover { background: #1a1d2e; border-left-color: #3b4268; }
+    .sidebar-item.active { background: #1e2140; border-left-color: #6366f1; }
+    .sidebar-item.solved .dot { background: #22c55e !important; }
+
+    .glass {
+      background: #13151f;
+      border: 1px solid #21253a;
+      border-radius: 14px;
+    }
+
+    textarea {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      resize: vertical;
+      background: #0d0f18;
+      color: #e2e8f0;
+      border: 1px solid #21253a;
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.7;
+      tab-size: 2;
+    }
+    textarea:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    textarea::placeholder { color: #3b4268; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      font-weight: 600;
+      border-radius: 9px;
+      padding: 9px 20px;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { opacity: 0.92; }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-ghost {
+      background: #1a1d2e;
+      color: #94a3b8;
+      font-weight: 600;
+      border-radius: 9px;
+      padding: 9px 16px;
+      font-size: 0.875rem;
+      border: 1px solid #21253a;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-ghost:hover { background: #21253a; color: #e2e8f0; }
+
+    .level-btn {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .level-btn.all { background: #21253a; color: #94a3b8; border-color: #2a2f47; }
+    .level-btn.all.active, .level-btn.all:hover { background: #6366f1; color: #fff; border-color: #6366f1; }
+    .level-btn.beg { background: rgba(34,197,94,0.1); color: #22c55e; border-color: rgba(34,197,94,0.2); }
+    .level-btn.beg.active, .level-btn.beg:hover { background: #22c55e; color: #fff; border-color: #22c55e; }
+    .level-btn.int { background: rgba(234,179,8,0.1); color: #eab308; border-color: rgba(234,179,8,0.2); }
+    .level-btn.int.active, .level-btn.int:hover { background: #eab308; color: #000; border-color: #eab308; }
+    .level-btn.adv { background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.2); }
+    .level-btn.adv.active, .level-btn.adv:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+    .diff-pill {
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 9px; border-radius: 20px; letter-spacing: 0.04em;
+    }
+    .diff-pill.Beginner { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .diff-pill.Intermediate { background: rgba(234,179,8,0.15); color: #fbbf24; }
+    .diff-pill.Advanced { background: rgba(239,68,68,0.15); color: #f87171; }
+    .diff-pill.cat { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .dot.Beginner { background: #22c55e; }
+    .dot.Intermediate { background: #eab308; }
+    .dot.Advanced { background: #ef4444; }
+
+    .cat-label {
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #3b4268;
+      padding: 8px 14px 4px;
+      background: #0d0f18;
+      border-bottom: 1px solid #1a1d2e;
+    }
+
+    /* Result tables */
+    .result-table { width: 100%; border-collapse: collapse; font-size: 0.73rem; font-family: 'JetBrains Mono', monospace; }
+    .result-table thead th { background: #1a1d2e; color: #64748b; padding: 6px 10px; text-align: left; font-weight: 600; white-space: nowrap; border-bottom: 1px solid #21253a; }
+    .result-table tbody td { padding: 5px 10px; border-bottom: 1px solid #13151f; white-space: nowrap; color: #cbd5e1; }
+    .result-table tbody tr:last-child td { border-bottom: none; }
+    .result-table tbody tr:hover { background: #1a1d2e; }
+    .null-val { color: #3b4268; font-style: italic; }
+
+    /* Code inline */
+    code { background: #1a1d2e; color: #a5b4fc; padding: 1px 6px; border-radius: 5px; font-family: 'JetBrains Mono', monospace; font-size: 0.82em; }
+
+    /* Hint */
+    .hint-box { background: rgba(234,179,8,0.07); border: 1px solid rgba(234,179,8,0.2); border-radius: 10px; padding: 10px 14px; font-size: 0.83rem; color: #fbbf24; }
+
+    /* Feedback */
+    .feedback-correct { background: rgba(34,197,94,0.07); border: 1px solid rgba(34,197,94,0.2); border-radius: 10px; }
+    .feedback-incorrect { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; }
+    .feedback-error { background: rgba(234,179,8,0.07); border: 1px solid rgba(234,179,8,0.2); border-radius: 10px; }
+
+    /* Glow on correct */
+    @keyframes glow-in { from { box-shadow: 0 0 0 0 rgba(34,197,94,0); } to { box-shadow: 0 0 18px 3px rgba(34,197,94,0.15); } }
+    .glow-correct { animation: glow-in 0.4s ease forwards; }
+
+    .schema-box { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: #64748b; white-space: pre; overflow-x: auto; line-height: 1.8; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Header -->
+<header style="background:#13151f; border-bottom:1px solid #21253a;" class="sticky top-0 z-30 px-6 py-3 flex items-center gap-4">
+  <div class="flex items-center gap-2">
+    <span class="text-xl">🏆</span>
+    <span class="font-bold text-white text-base tracking-tight">SQL Practice</span>
+    <span style="background:rgba(99,102,241,0.15);color:#818cf8;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid rgba(99,102,241,0.25);">100 Exercises</span>
+  </div>
+
+  <!-- Level Filter -->
+  <div class="flex items-center gap-2 ml-4">
+    <span style="font-size:0.7rem;color:#3b4268;font-weight:600;">LEVEL</span>
+    <button class="level-btn all active" id="filter-all" onclick="setFilter('all')">All</button>
+    <button class="level-btn beg" id="filter-beginner" onclick="setFilter('beginner')">Beginner</button>
+    <button class="level-btn int" id="filter-intermediate" onclick="setFilter('intermediate')">Intermediate</button>
+    <button class="level-btn adv" id="filter-advanced" onclick="setFilter('advanced')">Advanced</button>
+  </div>
+
+  <!-- Progress -->
+  <div class="ml-auto flex items-center gap-3">
+    <span id="progress-label" style="font-size:0.75rem;color:#64748b;font-weight:600;">0 / 100</span>
+    <div style="width:100px;height:4px;background:#1a1d2e;border-radius:99px;overflow:hidden;">
+      <div id="progress-bar" style="height:100%;background:linear-gradient(90deg,#6366f1,#818cf8);border-radius:99px;width:0%;transition:width 0.5s ease;"></div>
+    </div>
+  </div>
+</header>
+
+<!-- Layout -->
+<div class="flex flex-1 overflow-hidden" style="height: calc(100vh - 53px);">
+
+  <!-- Sidebar -->
+  <aside style="width:270px;min-width:220px;background:#0d0f18;border-right:1px solid #1a1d2e;display:flex;flex-direction:column;overflow:hidden;">
+    <div style="padding:10px;border-bottom:1px solid #1a1d2e;">
+      <input id="search-input" type="text" placeholder="Search…"
+        style="width:100%;background:#13151f;border:1px solid #21253a;border-radius:8px;padding:7px 12px;color:#e2e8f0;font-size:0.82rem;outline:none;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#21253a'" />
+    </div>
+    <div id="sidebar-list" style="overflow-y:auto;flex:1;">
+      {% set current_cat = namespace(val='') %}
+      {% for ex in exercises %}
+        {% if ex.category != current_cat.val %}
+          {% set current_cat.val = ex.category %}
+          <div class="cat-label" data-cat="{{ ex.category }}">{{ ex.category }}</div>
+        {% endif %}
+        <div class="sidebar-item flex items-center gap-2 px-4 py-2 cursor-pointer {% if ex.id == selected_id %}active{% endif %} {% if ex.id in [] %}solved{% endif %}"
+             id="item-{{ ex.id }}"
+             data-id="{{ ex.id }}"
+             data-diff="{{ ex.difficulty | lower }}"
+             data-cat="{{ ex.category | lower }}"
+             data-title="{{ ex.title | lower }}"
+             onclick="selectExercise({{ ex.id }})">
+          <span style="font-size:0.67rem;color:#3b4268;width:22px;flex-shrink:0;">#{{ ex.id + 1 }}</span>
+          <span style="font-size:0.82rem;flex:1;line-height:1.3;">{{ ex.title }}</span>
+          <span class="dot {{ ex.difficulty }}" id="dot-{{ ex.id }}"></span>
+        </div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex flex-1 overflow-hidden gap-0">
+
+    <!-- Center: Exercise + Editor -->
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid #1a1d2e;">
+
+      <!-- Exercise info -->
+      <div style="padding:18px 22px 14px;border-bottom:1px solid #1a1d2e;background:#0d0f18;flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;flex-wrap:wrap;">
+          <h2 id="ex-title" style="font-size:1.05rem;font-weight:700;color:#f1f5f9;">{{ exercise.title }}</h2>
+          <span class="diff-pill {{ exercise.difficulty }}" id="ex-diff">{{ exercise.difficulty }}</span>
+          <span class="diff-pill cat" id="ex-cat">{{ exercise.category }}</span>
+        </div>
+        <p id="ex-desc" style="font-size:0.875rem;color:#64748b;line-height:1.65;">{{ exercise.description | safe }}</p>
+      </div>
+
+      <!-- Editor -->
+      <div style="flex:1;overflow:auto;padding:16px 22px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:#3b4268;text-transform:uppercase;">Your SQL Query</div>
+        <textarea id="sql-editor" rows="9" style="width:100%;padding:14px 16px;font-size:0.875rem;"
+          placeholder="-- Write your SQL here…&#10;SELECT ...">{{ user_query }}</textarea>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="btn-primary" onclick="runQuery()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Run Query
+            <span style="font-size:0.7rem;opacity:0.55;font-weight:400;">Ctrl+↵</span>
+          </button>
+          <button class="btn-ghost" onclick="toggleHint()">💡 Hint</button>
+          <button class="btn-ghost" onclick="toggleSchema()">📋 Schema</button>
+          <button class="btn-ghost" onclick="resetEditor()">↺ Reset</button>
+        </div>
+
+        <div id="hint-box" class="hint-box" style="display:none;">{{ exercise.hint }}</div>
+
+        <div id="schema-box" style="display:none;background:#13151f;border:1px solid #21253a;border-radius:10px;padding:14px 16px;">
+          <div class="schema-box">categories   (id, name)
+customers    (id, first_name, last_name, email, city)
+products     (id, name, price, stock, category_id)
+orders       (id, customer_id, order_date, total_amount, status)
+order_items  (id, order_id, product_id, quantity, unit_price)
+
+<span style="color:#3b4268;">-- statuses : Pending · Processing · Shipped · Delivered · Cancelled
+-- seed data : 6 categories · 15 customers · 30 products · 60 orders</span></div>
+        </div>
+
+        <div id="feedback-box" style="display:none;padding:12px 16px;" class="rounded-xl">
+          <div id="feedback-status" style="font-weight:700;font-size:0.95rem;margin-bottom:3px;"></div>
+          <div id="feedback-sub" style="font-size:0.8rem;opacity:0.7;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div style="width:380px;min-width:280px;display:flex;flex-direction:column;overflow:hidden;background:#0d0f18;">
+      <div style="flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+
+        <!-- Your Output -->
+        <div class="glass overflow-hidden">
+          <div style="padding:8px 14px;border-bottom:1px solid #21253a;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;color:#3b4268;text-transform:uppercase;">Your Output</span>
+            <span id="user-rows" style="font-size:0.68rem;color:#3b4268;"></span>
+          </div>
+          <div id="user-result" style="overflow:auto;max-height:220px;">
+            <div style="text-align:center;padding:24px;font-size:0.78rem;color:#2a2f47;">Run a query to see results</div>
+          </div>
+        </div>
+
+        <!-- Expected Output -->
+        <div class="glass overflow-hidden">
+          <div style="padding:8px 14px;border-bottom:1px solid #21253a;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.08em;color:#3b4268;text-transform:uppercase;">Expected Output</span>
+            <span id="expected-rows" style="font-size:0.68rem;color:#3b4268;"></span>
+          </div>
+          <div id="expected-result" style="overflow:auto;max-height:220px;">
+            <div style="text-align:center;padding:24px;font-size:0.78rem;color:#2a2f47;">Expected output will appear here</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const exercises = {{ exercises | tojson }};
+  let currentId = {{ selected_id }};
+  let solved = new Set(JSON.parse(localStorage.getItem('sql_solved') || '[]'));
+  let activeFilter = 'all';
+
+  // --- Progress ---
+  function updateProgress() {
+    const n = solved.size;
+    document.getElementById('progress-label').textContent = n + ' / 100';
+    document.getElementById('progress-bar').style.width = (n / 100 * 100) + '%';
+  }
+  updateProgress();
+
+  // --- Solved dots ---
+  function applySolvedDots() {
+    solved.forEach(id => {
+      const dot = document.getElementById('dot-' + id);
+      if (dot) dot.style.background = '#22c55e';
+      const item = document.getElementById('item-' + id);
+      if (item) item.classList.add('solved');
+    });
+  }
+  applySolvedDots();
+
+  // --- Select exercise ---
+  function selectExercise(id) {
+    currentId = id;
+    const ex = exercises[id];
+
+    document.getElementById('ex-title').textContent = ex.title;
+    document.getElementById('ex-desc').innerHTML = ex.description;
+
+    const diffEl = document.getElementById('ex-diff');
+    diffEl.textContent = ex.difficulty;
+    diffEl.className = 'diff-pill ' + ex.difficulty;
+
+    document.getElementById('ex-cat').textContent = ex.category;
+    document.getElementById('sql-editor').value = '';
+    document.getElementById('hint-box').textContent = ex.hint;
+    document.getElementById('hint-box').style.display = 'none';
+    document.getElementById('schema-box').style.display = 'none';
+    document.getElementById('feedback-box').style.display = 'none';
+    document.getElementById('user-result').innerHTML = '<div style="text-align:center;padding:24px;font-size:0.78rem;color:#2a2f47;">Run a query to see results</div>';
+    document.getElementById('expected-result').innerHTML = '<div style="text-align:center;padding:24px;font-size:0.78rem;color:#2a2f47;">Expected output will appear here</div>';
+    document.getElementById('user-rows').textContent = '';
+    document.getElementById('expected-rows').textContent = '';
+
+    document.querySelectorAll('.sidebar-item').forEach(el => {
+      el.classList.toggle('active', parseInt(el.dataset.id) === id);
+    });
+
+    const item = document.getElementById('item-' + id);
+    if (item) item.scrollIntoView({ block: 'nearest' });
+    document.getElementById('sql-editor').focus();
+  }
+
+  // --- Run query ---
+  async function runQuery() {
+    const sql = document.getElementById('sql-editor').value.trim();
+    if (!sql) return;
+
+    const fb = document.getElementById('feedback-box');
+    fb.className = 'rounded-xl';
+    fb.style.display = 'block';
+    document.getElementById('feedback-status').innerHTML = '<span style="color:#64748b;animation:pulse 1s infinite;">Running…</span>';
+    document.getElementById('feedback-sub').textContent = '';
+    document.getElementById('user-result').innerHTML = '';
+    document.getElementById('expected-result').innerHTML = '';
+    document.getElementById('user-rows').textContent = '';
+    document.getElementById('expected-rows').textContent = '';
+
+    try {
+      const res = await fetch('/api/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exercise_id: currentId, query: sql })
+      });
+      const data = await res.json();
+
+      if (data.status === 'correct') {
+        fb.className = 'rounded-xl feedback-correct glow-correct';
+        document.getElementById('feedback-status').innerHTML = '✅ <span style="color:#4ade80;">Correct — well done!</span>';
+        document.getElementById('feedback-sub').textContent = '';
+        if (!solved.has(currentId)) {
+          solved.add(currentId);
+          localStorage.setItem('sql_solved', JSON.stringify([...solved]));
+          updateProgress();
+          const dot = document.getElementById('dot-' + currentId);
+          if (dot) dot.style.background = '#22c55e';
+          document.getElementById('item-' + currentId).classList.add('solved');
+        }
+      } else if (data.status === 'incorrect') {
+        fb.className = 'rounded-xl feedback-incorrect';
+        document.getElementById('feedback-status').innerHTML = '❌ <span style="color:#f87171;">Not quite — compare your output with expected →</span>';
+        document.getElementById('feedback-sub').textContent = '';
+      } else {
+        fb.className = 'rounded-xl feedback-error';
+        document.getElementById('feedback-status').innerHTML = '⚠️ <span style="color:#fbbf24;">SQL Error</span>';
+        document.getElementById('feedback-sub').textContent = data.message;
+      }
+
+      if (data.user_result) {
+        const n = data.user_result.data.length;
+        document.getElementById('user-rows').textContent = n + (n === 1 ? ' row' : ' rows');
+        document.getElementById('user-result').innerHTML = buildTable(data.user_result);
+      }
+      if (data.expected_result) {
+        const n = data.expected_result.data.length;
+        document.getElementById('expected-rows').textContent = n + (n === 1 ? ' row' : ' rows');
+        document.getElementById('expected-result').innerHTML = buildTable(data.expected_result);
+      }
+    } catch (e) {
+      fb.className = 'rounded-xl feedback-error';
+      document.getElementById('feedback-status').innerHTML = '⚠️ <span style="color:#fbbf24;">Network error — please try again</span>';
+    }
+  }
+
+  function buildTable(result) {
+    if (!result?.columns) return '';
+    const ths = result.columns.map(c => `<th>${c}</th>`).join('');
+    if (!result.data.length) {
+      return `<table class="result-table"><thead><tr>${ths}</tr></thead><tbody><tr><td colspan="${result.columns.length}" style="text-align:center;color:#2a2f47;padding:14px;">No rows returned</td></tr></tbody></table>`;
+    }
+    const rows = result.data.map(row =>
+      '<tr>' + row.map(c =>
+        c === null || c === undefined
+          ? '<td><span class="null-val">NULL</span></td>'
+          : `<td>${c}</td>`
+      ).join('') + '</tr>'
+    ).join('');
+    return `<table class="result-table"><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  // --- Level filter ---
+  function setFilter(level) {
+    activeFilter = level;
+    ['all','beginner','intermediate','advanced'].forEach(l => {
+      document.getElementById('filter-' + l).classList.toggle('active', l === level);
+    });
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    document.querySelectorAll('.sidebar-item').forEach(el => {
+      const diffMatch = activeFilter === 'all' || el.dataset.diff === activeFilter;
+      const searchMatch = !q || el.dataset.title.includes(q) || el.dataset.cat.includes(q);
+      el.style.display = diffMatch && searchMatch ? '' : 'none';
+    });
+    document.querySelectorAll('.cat-label').forEach(header => {
+      const cat = header.dataset.cat;
+      if (!cat) return;
+      const anyVisible = [...document.querySelectorAll(`.sidebar-item[data-cat="${cat.toLowerCase()}"]`)]
+        .some(el => el.style.display !== 'none');
+      header.style.display = anyVisible ? '' : 'none';
+    });
+  }
+
+  // --- Toggles ---
+  function toggleHint() {
+    const hb = document.getElementById('hint-box');
+    hb.style.display = hb.style.display === 'none' ? 'block' : 'none';
+  }
+  function toggleSchema() {
+    const sb = document.getElementById('schema-box');
+    sb.style.display = sb.style.display === 'none' ? 'block' : 'none';
+  }
+  function resetEditor() {
+    document.getElementById('sql-editor').value = '';
+    document.getElementById('feedback-box').style.display = 'none';
+    document.getElementById('hint-box').style.display = 'none';
+    document.getElementById('schema-box').style.display = 'none';
+    document.getElementById('user-result').innerHTML = '<div style="text-align:center;padding:24px;font-size:0.78rem;color:#2a2f47;">Run a query to see results</div>';
+    document.getElementById('expected-result').innerHTML = '<div style="text-align:center;padding:24px;font-size:0.78rem;color:#2a2f47;">Expected output will appear here</div>';
+    document.getElementById('user-rows').textContent = '';
+    document.getElementById('expected-rows').textContent = '';
+    document.getElementById('sql-editor').focus();
+  }
+
+  // --- Search ---
+  document.getElementById('search-input').addEventListener('input', applyFilters);
+  document.getElementById('search-input').addEventListener('focus', function() { this.style.borderColor='#6366f1'; });
+  document.getElementById('search-input').addEventListener('blur', function() { this.style.borderColor='#21253a'; });
+
+  // --- Keyboard shortcut ---
+  document.getElementById('sql-editor').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runQuery(); }
+  });
+
+  // --- Init active item ---
+  (function() {
+    const el = document.getElementById('item-' + currentId);
+    if (el) el.classList.add('active');
+  })();
+</script>
+</body>
+</html>
